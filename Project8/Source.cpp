@@ -1,0 +1,68 @@
+#include <stdio.h>
+#include <GL/glew.h>
+#include <GL/freeglut.h>
+#include "math_3d.h"
+
+GLuint VBO; // инициализируем указатель на хранение буфера вершин
+
+static void RenderSceneCB()
+{
+    glClear(GL_COLOR_BUFFER_BIT);
+
+    glEnableVertexAttribArray(0); // параметры вершины 
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // массив будет хранить буфер вершин 
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, 0); // данные внутри буфера
+
+
+    glDrawArrays(GL_TRIANGLES, 0, 3); // отрисовка трекгольника 
+
+    glDisableVertexAttribArray(0); // отключение атрибута вершины 
+
+    glutSwapBuffers();
+}
+
+
+static void InitializeGlutCallbacks()
+{
+    glutDisplayFunc(RenderSceneCB);
+}
+
+static void CreateVertexBuffer()
+{
+    Vector3f Vertices[3]; // массив из трех элементов 
+    Vertices[0] = Vector3f(-1.0f, -1.0f, 0.0f); // 3 вершины для треугольника 
+    Vertices[1] = Vector3f(1.0f, -1.0f, 0.0f);
+    Vertices[2] = Vector3f(0.0f, 1.0f, 0.0f);
+
+    glGenBuffers(1, &VBO);
+    glBindBuffer(GL_ARRAY_BUFFER, VBO); // приготовка к отрисовке, здесь особа не важна 
+    glBufferData(GL_ARRAY_BUFFER, sizeof(Vertices), Vertices, GL_STATIC_DRAW); // принимает нахвание цели
+
+}
+
+
+int main(int argc, char** argv)
+{
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGBA); // создание окна 
+    glutInitWindowSize(1024, 768);
+    glutInitWindowPosition(100, 100);
+    glutCreateWindow("Tutorial 03");
+
+    InitializeGlutCallbacks();
+
+    //инициализируем GLEW и проверяем на ошибки.
+    GLenum res = glewInit();
+    if (res != GLEW_OK) {
+        fprintf(stderr, "Error: '%s'\n", glewGetErrorString(res));
+        return 1;
+    }
+
+    glClearColor(0.0f, 0.0f, 0.0f, 0.0f);
+
+    CreateVertexBuffer();
+
+    glutMainLoop();
+
+    return 0;
+}
